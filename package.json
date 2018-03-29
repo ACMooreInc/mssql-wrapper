@@ -1,0 +1,22 @@
+{
+  "name": "@ac-moore-inc/mssql-wrapper",
+  "version": "1.1.0",
+  "description": "An easy to use mssql wrapper.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACMooreInc/mssql-wrapper"
+  },
+  "author": "A.C. Moore",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ACMooreInc/mssql-wrapper/issues"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "mssql": "^4.1.0"
+  }
+}
