@@ -39,8 +39,8 @@ Execute prepared statement
 executePSQuery(options, callback);
 ```
 #### Parameters:
-##### options:
-Object
+##### options: *Object*
+
 |Field | Type | Required | Value |
 | --- | --- |--- | --- |
 |db   | string | true | database name as defined in the config object used to prepare the service|
@@ -55,11 +55,11 @@ Execute a stored procedure
 executeSP(options, callback);
 ```
 #### Parameters:
-##### options:
-Object
+##### options: *Object*
+
 |Field | Type | Required | Value |
 | --- | --- |--- | --- |
-|db   | string | true | database name as defined in the config object used to prepare the service|
+|db   | string | true | database name as defined in the config object used to prepare the service |
 |procedure | string | true | procedure name |
 |input | array | true | array of objects containing input name, type (as defined by mssql), and value (key: val) |
 |output | array | true | array of objects containing output name and type (as defined by mssql) |
@@ -72,9 +72,8 @@ call a basic query
 executeQuery(options, callback);
 ```
 #### Parameters:
-##### options:
-Object 
-Object
+##### options: *Object*
+
 |Field | Type | Required | Value |
 | --- | --- |--- | --- |
 |db   | string | true | database name as defined in the config object used to prepare the service|
