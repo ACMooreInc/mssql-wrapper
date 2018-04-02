@@ -45,8 +45,9 @@ executePSQuery(options, callback);
 | --- | --- |--- | --- |
 |db   | string | true | database name as defined in the config object used to prepare the service|
 |qrydata | object | true | object containing query fields, from_objects, and where_clause |
-|input | array | true | array of objects containing input name and type (as defined by mssql)|
-|params | object | true | key value pairs defining any parameters, where key is the given input name and value is the parameter value |
+|server | string | false | sever location of the database |
+|input | array | false | array of objects containing input name and type (as defined by mssql)|
+|params | object | false | key value pairs defining any parameters, where key is the given input name and value is the parameter value |
 ___
 
 ### exeuteSP
@@ -61,8 +62,8 @@ executeSP(options, callback);
 | --- | --- |--- | --- |
 |db   | string | true | database name as defined in the config object used to prepare the service |
 |procedure | string | true | procedure name |
-|input | array | true | array of objects containing input name, type (as defined by mssql), and value (key: val) |
-|output | array | true | array of objects containing output name and type (as defined by mssql) |
+|input | array | false | array of objects containing input name, type (as defined by mssql), and value (key: val) |
+|output | array | false | array of objects containing output name and type (as defined by mssql) |
 
 ___
 
@@ -78,7 +79,7 @@ executeQuery(options, callback);
 | --- | --- |--- | --- |
 |db   | string | true | database name as defined in the config object used to prepare the service|
 |qrydata | array | true | array of objects containing query: fields, from_objects, join_condition, where_clause, group_by, order_by |
-|server | string | true | sever location of the database |
-|outFormat | array | true | array of objects containing output name and type (as defined by mssql)|
+|server | string | false | sever location of the database |
+|outFormat | array | false | array of objects containing output name and type (as defined by mssql)|
 
 ___
