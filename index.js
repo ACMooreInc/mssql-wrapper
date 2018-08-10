@@ -7,6 +7,9 @@ var mssql = require('mssql'),
     pools = {},
     dbs = [];
 
+// export mssql drive
+exports.mssql = mssql;
+
 // Create the connection pools
 exports.prepareService = function (dbConfig, callback) {
     if (!dbConfig) {
