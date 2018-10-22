@@ -13,13 +13,13 @@ exports.mssql = mssql;
 // Create the connection pools
 exports.prepareService = function (dbConfig, callback) {
     if (!dbConfig) {
-        if(callback) callback();
+        if (callback) callback();
         return;
     }
     Object.keys(dbConfig).forEach(function (db) {
         dbs[db] = dbConfig[db];
     });
-    if(callback) callback();
+    if (callback) callback();
 };
 
 //execute simple query
@@ -87,14 +87,10 @@ function executePSQuery(options, cb) {
                 mssql.close();
                 return cb(err);
             };
-
-            ps.execute(params, function (err, recordSet, returnValue) {
+            ps.execute(params, function (errExec, recordSet, returnValue) {
                 ps.unprepare(function (err) {
                     mssql.close();
-                    if (err) {
-                        return cb(err);
-                    };
-                    cb(null, recordSet);
+                    cb(errExec || err, recordSet);
                 });
             });
         });
@@ -145,46 +141,46 @@ function executeQuery(options, cb) {
         server = options.server || null,
         outFormat = options.outFormat || null;
     async.waterfall([
-            function (callback) {
-                executeFlatQuery({
-                    db: db,
-                    server: server,
-                    qry: buildQuery(qrydata)
-                }, function (err, request) {
-                    if (err) {
-                        return callback(err);
-                    };
-                    return callback(null, request);
-                });
-            },
-            function (request, callback) {
-                var response = {
-                    result: new Array(300000),
-                    recordSet: new Array()
+        function (callback) {
+            executeFlatQuery({
+                db: db,
+                server: server,
+                qry: buildQuery(qrydata)
+            }, function (err, request) {
+                if (err) {
+                    return callback(err);
                 };
-                var ind = 0;
-                request.on('error', function (err) {
-                    return callback(err, {});
-                });
+                return callback(null, request);
+            });
+        },
+        function (request, callback) {
+            var response = {
+                result: new Array(300000),
+                recordSet: new Array()
+            };
+            var ind = 0;
+            request.on('error', function (err) {
+                return callback(err, {});
+            });
 
-                request.on('row', function (data) {
-                    return response.result[ind++] = data;
-                });
+            request.on('row', function (data) {
+                return response.result[ind++] = data;
+            });
 
-                request.on('recordset', function (data) {
-                    if (outFormat === 'array') {
-                        return response.recordSet = data;
-                    } else {
-                        return;
-                    };
-                });
+            request.on('recordset', function (data) {
+                if (outFormat === 'array') {
+                    return response.recordSet = data;
+                } else {
+                    return;
+                };
+            });
 
-                request.on('done', function () {
-                    response.result.length = ind;
-                    return callback(null, response);
-                });
-            }
-        ],
+            request.on('done', function () {
+                response.result.length = ind;
+                return callback(null, response);
+            });
+        }
+    ],
         function (err, result) {
             mssql.close();
             if (err) {
