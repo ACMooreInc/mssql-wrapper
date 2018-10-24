@@ -22,30 +22,30 @@ exports.prepareService = function (dbConfig, callback) {
     if (callback) callback();
 };
 
+function getPool(db, cb) {
+    if (pools[db]) { return cb(null, pools[db]); };
+    var pool = new mssql.ConnectionPool(dbs[db]);
+    pool.connect(function (err) {
+        if (err) {
+            pools[db] = null;
+            return cb(err);
+        }
+        pools[db] = pool;
+        cb(null, pool);
+    });
+}
+
 //execute simple query
 function executeFlatQuery(options, cb) {
-    var dbconn = dbs[options.db],
-        qry = options.qry,
-        server = options.server;
-
-    if (server) {
-        dbconn.server = server;
-    }
-
-    mssql.connect(dbconn, function (err) {
-        if (err) {
-            return cb(err, null);
-        };
-
-        var request = new mssql.Request();
+    var pool = getPool(options.db, function (err, pool) {
+        if (err) return cb(err);
+        var request = new mssql.Request(pool);
         request.stream = true;
         request.query(qry);
-
         request.on('error', function (err) {
             console.log(err);
             return cb(err);
         });
-
         cb(null, request);
     });
 }
@@ -58,33 +58,21 @@ function executeFlatQuery(options, cb) {
 //Returns query result in object
 //</returns>
 function executePSQuery(options, cb) {
-    var dbconn = dbs[options.db],
-        server = options.server || null,
-        qry = buildQuery(options.qrydata),
-        input = options.input ? options.input : null,
-        params = options.params ? options.params : null;
+    getPool(options.db, function (err, pool) {
+        if (err) return cb(err);
+        var dbconn = dbs[options.db],
+            qry = buildQuery(options.qrydata),
+            input = options.input ? options.input : null,
+            params = options.params ? options.params : null;
 
-    if (server) {
-        dbconn.server = server;
-    }
-
-    mssql.connect(dbconn, function (err) {
-        if (err) {
-            mssql.close();
-            return cb(err, null);
-        };
-
-        var ps = new mssql.PreparedStatement();
-
+        var ps = new mssql.PreparedStatement(pool);
         if (input) {
             input.forEach(function (i) {
                 ps.input(i.name, i.type);
             });
         };
-
         ps.prepare(qry, function (err) {
             if (err) {
-                mssql.close();
                 return cb(err);
             };
             ps.execute(params, function (errExec, recordSet, returnValue) {
@@ -105,14 +93,12 @@ exports.executeSP = function (options, cb) {
         input = options.input ? options.input : null,
         output = options.output ? options.output : null;
 
-    mssql.connect(dbconn, function (err) {
+    getPool(options.db, function (err, pool) {
+        if (err) return cb(err);
         if (err) {
-            mssql.close();
             return cb(err, null);
         };
-
-        var sp = new mssql.Request();
-
+        var sp = new mssql.Request(pool);
         input.forEach(function (i) {
             sp.input(i.name, i.type, i.val);
         });
@@ -122,14 +108,8 @@ exports.executeSP = function (options, cb) {
                 sp.output(i.name, i.type);
             });
         }
-
         sp.execute(procedure, (err, result) => {
-            mssql.close();
-            if (err) {
-                return cb(err);
-            };
-            console.log(result.output)
-            cb(null, result.output);
+            cb(err, result && result.output);
         });
     });
 };
